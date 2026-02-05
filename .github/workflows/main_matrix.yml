@@ -128,27 +128,28 @@ jobs:
     if: ${{ !contains(github.ref_name, 'event/') && github.repository == 'meshtastic/firmware' }}
     uses: ./.github/workflows/test_native.yml
 
-  docker:
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [debian, alpine]
-        platform: [linux/amd64, linux/arm64, linux/arm/v7]
-        pio_env: [native, native-tft]
-        exclude:
-          - distro: alpine
-            platform: linux/arm/v7
-          - pio_env: native-tft
-            platform: linux/arm64
-          - pio_env: native-tft
-            platform: linux/arm/v7
-    uses: ./.github/workflows/docker_build.yml
-    with:
-      distro: ${{ matrix.distro }}
-      platform: ${{ matrix.platform }}
-      runs-on: ${{ contains(matrix.platform, 'arm') && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
-      pio_env: ${{ matrix.pio_env }}
-      push: false
+  # Docker job disabled - docker_build.yml is disabled
+  # docker:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       distro: [debian, alpine]
+  #       platform: [linux/amd64, linux/arm64, linux/arm/v7]
+  #       pio_env: [native, native-tft]
+  #       exclude:
+  #         - distro: alpine
+  #           platform: linux/arm/v7
+  #         - pio_env: native-tft
+  #           platform: linux/arm64
+  #         - pio_env: native-tft
+  #           platform: linux/arm/v7
+  #   uses: ./.github/workflows/docker_build.yml
+  #   with:
+  #     distro: ${{ matrix.distro }}
+  #     platform: ${{ matrix.platform }}
+  #     runs-on: ${{ contains(matrix.platform, 'arm') && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+  #     pio_env: ${{ matrix.pio_env }}
+  #     push: false
 
   gather-artifacts:
     # trunk-ignore(checkov/CKV2_GHA_1)
