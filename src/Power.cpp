@@ -756,78 +756,85 @@ void Power::powerCommandsCheck()
 
 void Power::reboot()
 {
-    notifyReboot.notifyObservers(NULL);
-#if defined(ARCH_ESP32)
-    ESP.restart();
-#elif defined(ARCH_NRF52)
-    NVIC_SystemReset();
-#elif defined(ARCH_RP2040)
-    rp2040.reboot();
-#elif defined(ARCH_PORTDUINO)
-    deInitApiServer();
-    if (aLinuxInputImpl)
-        aLinuxInputImpl->deInit();
-    SPI.end();
-    Wire.end();
-    Serial1.end();
-    if (screen) {
-        delete screen;
-        screen = nullptr;
-    }
-    LOG_DEBUG("final reboot!");
-    ::reboot();
-#elif defined(ARCH_STM32WL)
-    HAL_NVIC_SystemReset();
-#else
-    rebootAtMsec = -1;
-    LOG_WARN("FIXME implement reboot for this platform. Note that some settings "
-             "require a restart to be applied");
-#endif
+    // Software reboot disabled - device can only be rebooted via physical reset button
+    LOG_WARN("Software reboot requested but disabled - use physical reset button");
+    return;
+
+//    notifyReboot.notifyObservers(NULL);
+//#if defined(ARCH_ESP32)
+//    ESP.restart();
+//#elif defined(ARCH_NRF52)
+//    NVIC_SystemReset();
+//#elif defined(ARCH_RP2040)
+//    rp2040.reboot();
+//#elif defined(ARCH_PORTDUINO)
+//    deInitApiServer();
+//    if (aLinuxInputImpl)
+//        aLinuxInputImpl->deInit();
+//    SPI.end();
+//    Wire.end();
+//    Serial1.end();
+//    if (screen) {
+//        delete screen;
+//        screen = nullptr;
+//    }
+//    LOG_DEBUG("final reboot!");
+//    ::reboot();
+//#elif defined(ARCH_STM32WL)
+//    HAL_NVIC_SystemReset();
+//#else
+//    rebootAtMsec = -1;
+//    LOG_WARN("FIXME implement reboot for this platform. Note that some settings "
+//             "require a restart to be applied");
+//#endif
 }
 
 void Power::shutdown()
 {
+    // Software shutdown disabled - device can only be shutdown via physical reset button
+    LOG_WARN("Software shutdown requested but disabled - use physical reset button");
+    return;
 
-#if HAS_SCREEN
-    if (screen) {
-#ifdef T_DECK_PRO
-        screen->showSimpleBanner("Device is powered off.\nConnect USB to start!",
-                                 0); // T-Deck Pro has no power button
-#elif defined(USE_EINK)
-        screen->showSimpleBanner("Shutting Down...",
-                                 2250); // dismiss after 3 seconds to avoid the
-                                        // banner on the sleep screen
-#else
-        screen->showSimpleBanner("Shutting Down...", 0); // stays on screen
-#endif
-    }
-#endif
-#if !defined(ARCH_STM32WL)
-    playShutdownMelody();
-#endif
-    nodeDB->saveToDisk();
-#if HAS_SCREEN
-    messageStore.saveToFlash();
-#endif
-#if defined(ARCH_NRF52) || defined(ARCH_ESP32) || defined(ARCH_RP2040)
-#ifdef PIN_LED1
-    ledOff(PIN_LED1);
-#endif
-#ifdef PIN_LED2
-    ledOff(PIN_LED2);
-#endif
-#ifdef PIN_LED3
-    ledOff(PIN_LED3);
-#endif
-#ifdef LED_NOTIFICATION
-    ledOff(LED_NOTIFICATION);
-#endif
-    doDeepSleep(DELAY_FOREVER, true, true);
-#elif defined(ARCH_PORTDUINO)
-    exit(EXIT_SUCCESS);
-#else
-    LOG_WARN("FIXME implement shutdown for this platform");
-#endif
+//#if HAS_SCREEN
+//    if (screen) {
+//#ifdef T_DECK_PRO
+//        screen->showSimpleBanner("Device is powered off.\nConnect USB to start!",
+//                                 0); // T-Deck Pro has no power button
+//#elif defined(USE_EINK)
+//        screen->showSimpleBanner("Shutting Down...",
+//                                 2250); // dismiss after 3 seconds to avoid the
+//                                        // banner on the sleep screen
+//#else
+//        screen->showSimpleBanner("Shutting Down...", 0); // stays on screen
+//#endif
+//    }
+//#endif
+//#if !defined(ARCH_STM32WL)
+//    playShutdownMelody();
+//#endif
+//    nodeDB->saveToDisk();
+//#if HAS_SCREEN
+//    messageStore.saveToFlash();
+//#endif
+//#if defined(ARCH_NRF52) || defined(ARCH_ESP32) || defined(ARCH_RP2040)
+//#ifdef PIN_LED1
+//    ledOff(PIN_LED1);
+//#endif
+//#ifdef PIN_LED2
+//    ledOff(PIN_LED2);
+//#endif
+//#ifdef PIN_LED3
+//    ledOff(PIN_LED3);
+//#endif
+//#ifdef LED_NOTIFICATION
+//    ledOff(LED_NOTIFICATION);
+//#endif
+//    doDeepSleep(DELAY_FOREVER, true, true);
+//#elif defined(ARCH_PORTDUINO)
+//    exit(EXIT_SUCCESS);
+//#else
+//    LOG_WARN("FIXME implement shutdown for this platform");
+//#endif
 }
 
 /// Reads power status to powerStatus singleton.
