@@ -71,5 +71,12 @@ else:
       elif "pr" not in args.level and not env["board_level"]:
         outlist.append(env["ci"])
 
+# Filter to only include specific boards (custom fork filter)
+ALLOWED_BOARDS = [
+    "heltec-wireless-tracker",
+    "heltec-wsl-v3",
+]
+outlist = [env for env in outlist if env["board"] in ALLOWED_BOARDS]
+
 # Return as a JSON list
 print(json.dumps(outlist))
