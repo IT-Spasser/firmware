@@ -109,24 +109,26 @@ jobs:
       pio_env: ${{ matrix.build.board }}
       platform: ${{ matrix.build.platform }}
 
-  build-debian-src:
-    if: github.repository == 'meshtastic/firmware'
-    uses: ./.github/workflows/build_debian_src.yml
-    with:
-      series: UNRELEASED
-      build_location: local
-    secrets: inherit
+  # Disabled - not needed for firmware builds
+  # build-debian-src:
+  #   if: github.repository == 'meshtastic/firmware'
+  #   uses: ./.github/workflows/build_debian_src.yml
+  #   with:
+  #     series: UNRELEASED
+  #     build_location: local
+  #   secrets: inherit
 
-  package-pio-deps-native-tft:
-    if: ${{ github.repository == 'meshtastic/firmware' && github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/package_pio_deps.yml
-    with:
-      pio_env: native-tft
-    secrets: inherit
+  # package-pio-deps-native-tft:
+  #   if: ${{ github.repository == 'meshtastic/firmware' && github.event_name == 'workflow_dispatch' }}
+  #   uses: ./.github/workflows/package_pio_deps.yml
+  #   with:
+  #     pio_env: native-tft
+  #   secrets: inherit
 
-  test-native:
-    if: ${{ !contains(github.ref_name, 'event/') && github.repository == 'meshtastic/firmware' }}
-    uses: ./.github/workflows/test_native.yml
+  # test-native:
+  #   if: ${{ !contains(github.ref_name, 'event/') && github.repository == 'meshtastic/firmware' }}
+  #   uses: ./.github/workflows/test_native.yml
+
 
   # Docker job disabled - docker_build.yml is disabled
   # docker:
@@ -290,8 +292,8 @@ jobs:
       - setup
       - version
       - gather-artifacts
-      - build-debian-src
-      - package-pio-deps-native-tft
+      # - build-debian-src  # disabled
+      # - package-pio-deps-native-tft  # disabled
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -324,25 +326,26 @@ jobs:
           tag_name: v${{ needs.version.outputs.long }}
           body: ${{ steps.release_notes.outputs.notes }}
 
-      - name: Download source deb
-        uses: actions/download-artifact@v7
-        with:
-          pattern: firmware-debian-${{ needs.version.outputs.deb }}~UNRELEASED-src
-          merge-multiple: true
-          path: ./output/debian-src
+      # Disabled - debian and pio deps jobs are disabled
+      # - name: Download source deb
+      #   uses: actions/download-artifact@v7
+      #   with:
+      #     pattern: firmware-debian-${{ needs.version.outputs.deb }}~UNRELEASED-src
+      #     merge-multiple: true
+      #     path: ./output/debian-src
 
-      - name: Download `native-tft` pio deps
-        uses: actions/download-artifact@v7
-        with:
-          pattern: platformio-deps-native-tft-${{ needs.version.outputs.long }}
-          merge-multiple: true
-          path: ./output/pio-deps-native-tft
+      # - name: Download `native-tft` pio deps
+      #   uses: actions/download-artifact@v7
+      #   with:
+      #     pattern: platformio-deps-native-tft-${{ needs.version.outputs.long }}
+      #     merge-multiple: true
+      #     path: ./output/pio-deps-native-tft
 
-      - name: Zip Linux sources
-        working-directory: output
-        run: |
-          zip -j -9 -r ./meshtasticd-${{ needs.version.outputs.deb }}-src.zip ./debian-src
-          zip -9 -r ./platformio-deps-native-tft-${{ needs.version.outputs.long }}.zip ./pio-deps-native-tft
+      # - name: Zip Linux sources
+      #   working-directory: output
+      #   run: |
+      #     zip -j -9 -r ./meshtasticd-${{ needs.version.outputs.deb }}-src.zip ./debian-src
+      #     zip -9 -r ./platformio-deps-native-tft-${{ needs.version.outputs.long }}.zip ./pio-deps-native-tft
 
       # For diagnostics
       - name: Display structure of downloaded files
@@ -367,8 +370,8 @@ jobs:
         if: ${{ github.ref_name == 'master' }}
         run: |
           gh release upload v${{ needs.version.outputs.long }} ./firmware-${{ needs.version.outputs.long }}.json
-          gh release upload v${{ needs.version.outputs.long }} ./output/meshtasticd-${{ needs.version.outputs.deb }}-src.zip
-          gh release upload v${{ needs.version.outputs.long }} ./output/platformio-deps-native-tft-${{ needs.version.outputs.long }}.zip
+          # gh release upload v${{ needs.version.outputs.long }} ./output/meshtasticd-${{ needs.version.outputs.deb }}-src.zip  # disabled
+          # gh release upload v${{ needs.version.outputs.long }} ./output/platformio-deps-native-tft-${{ needs.version.outputs.long }}.zip  # disabled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
